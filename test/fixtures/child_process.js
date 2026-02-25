@@ -1,16 +1,14 @@
-'use strict'
+import { EventEmitter } from 'events'
 
-const EventEmitter = require('events')
-
-module.exports = class ChildProcessMock extends EventEmitter {
-  constructor() {
+export default class ChildProcessMock extends EventEmitter {
+  constructor () {
     super()
 
     this.stdout = {
-      on() {}
+      on () {}
     }
     this.stderr = {
-      on() {}
+      on () {}
     }
     this.stdin = {
       end: () => {

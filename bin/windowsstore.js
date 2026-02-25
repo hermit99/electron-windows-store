@@ -1,18 +1,24 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
+import { program } from 'commander'
+import os from 'os'
+import chalk from 'chalk'
+import { createRequire } from 'module'
 
-var program = require('commander')
-var os = require('os')
-var chalk = require('chalk')
-var pack = require('../package.json')
+import setup from '../lib/setup.js'
+import ensureParams from '../lib/params.js'
+import zip from '../lib/zip.js'
+import sign from '../lib/sign.js'
+import assets from '../lib/assets.js'
+import convert from '../lib/convert.js'
+import finalSay from '../lib/finalsay.js'
+import makeappx from '../lib/makeappx.js'
+import manifest from '../lib/manifest.js'
+import deploy from '../lib/deploy.js'
+import makepri from '../lib/makepri.js'
 
-// Ensure Node 4
-if (parseInt(process.versions.node[0], 10) < 4) {
-  console.log('You need at least Node 4.x to run this script')
-}
+const require = createRequire(import.meta.url)
+const pack = require('../package.json')
 
 // Little helper function turning string input into an array
 function list (val) {
@@ -29,7 +35,7 @@ program
   .option('-n, --package-name <name>', 'Name of the app package')
   .option('--identity-name <name>', 'Name for identity')
   .option('--application-id <id>', 'Application ID, only A-Za-z0-9. are allowed')
-  .option('--package-display-name <displayName>', 'Dispay name of the package')
+  .option('--package-display-name <displayName>', 'Display name of the package')
   .option('--package-description <description>', 'Description of the package')
   .option('--package-background-color <color>', 'Background color for the app icon (example: #464646)')
   .option('-e, --package-executable <executablePath>', 'Path to the package executable')
@@ -49,38 +55,30 @@ program
   .option('--create-config-params <params>', 'Additional parameters for makepri.exe "createconfig" (example: --create-config-params "/l","/d")', list)
   .option('--create-pri-params <params>', 'Additional parameters for makepri.exe "new" (example: --create-pri-params "/l","/d")', list)
   .option('--verbose <true|false>', 'Enable debug mode')
-  .parse(process.argv)
+  .parse()
 
-if (program.windowsBuild) {
+const opts = program.opts()
+
+if (opts.windowsBuild) {
   console.log(os.release())
 }
 
-if (program.verbose) {
-  var debug = process.env.DEBUG || ''
+if (opts.verbose) {
+  const debug = process.env.DEBUG || ''
   process.env.DEBUG = 'electron2appx,' + debug
 }
 
-var ensureParams = require('../lib/params')
-var zip = require('../lib/zip')
-var setup = require('../lib/setup')
-var sign = require('../lib/sign')
-var assets = require('../lib/assets')
-var convert = require('../lib/convert')
-var makeappx = require('../lib/makeappx')
-var manifest = require('../lib/manifest')
-var deploy = require('../lib/deploy')
-var makepri = require('../lib/makepri')
-
-setup(program)
-  .then(() => ensureParams(program))
-  .then(() => zip(program))
-  .then(() => convert(program))
-  .then(() => assets(program))
-  .then(() => manifest(program))
-  .then(() => makepri(program))
-  .then(() => makeappx(program))
-  .then(() => sign.signAppx(program))
-  .then(() => deploy(program))
+setup(opts)
+  .then(() => ensureParams(opts))
+  .then(() => zip(opts))
+  .then(() => convert(opts))
+  .then(() => assets(opts))
+  .then(() => manifest(opts))
+  .then(() => makepri(opts))
+  .then(() => finalSay(opts))
+  .then(() => makeappx(opts))
+  .then(() => sign.signAppx(opts))
+  .then(() => deploy(opts))
   .then(() => console.log(chalk.bold.green('All done!')))
   .catch(e => {
     console.log(e)

@@ -1,31 +1,32 @@
 'use strict'
 
-const path = require('path')
-const mockery = require('mockery')
+import path from 'path'
+import { describe, it, afterEach, vi, expect } from 'vitest'
 
-const ChildProcessMock = require('../fixtures/child_process')
+import ChildProcessMock from '../fixtures/child_process.js'
 
 describe('Makepri', () => {
   let spawnedProcesses = []
 
   const cpMock = {
-    spawn(_process, _args) {
+    spawn (_process, _args) {
       spawnedProcesses.push({
         passedProcess: _process,
         passedArgs: _args
       })
-
       return new ChildProcessMock()
     }
   }
 
   afterEach(() => {
-    mockery.deregisterAll()
+    vi.unmock('child_process')
     spawnedProcesses = []
   })
 
   describe('makepri()', () => {
-    it('should attempt to call makepri.exe with createconfig as parameter', function (done) {
+    it('should attempt to call makepri.exe with createconfig as parameter', async () => {
+      vi.doMock('child_process', () => ({ default: cpMock }), { virtual: true })
+
       const programMock = {
         deploy: true,
         inputDirectory: '/fakepath/to/input',
@@ -35,21 +36,20 @@ describe('Makepri', () => {
         makePri: true
       }
 
-      mockery.registerMock('child_process', cpMock)
+      const makepriModule = await import('../../lib/makepri.js')
+      await makepriModule.default(programMock)
 
-      require('../../lib/makepri')(programMock)
-        .then(() => {
-          const exptectedTarget = path.join('pre-appx', 'priconfig.xml')
-          const expectedScript = path.join(programMock.windowsKit, 'makepri.exe')
-          const expectedParams = ['createconfig', '/cf', exptectedTarget, '/dq', 'en-US']
+      const exptectedTarget = path.join('pre-appx', 'priconfig.xml')
+      const expectedScript = path.join(programMock.windowsKit, 'makepri.exe')
+      const expectedParams = ['createconfig', '/cf', exptectedTarget, '/dq', 'en-US']
 
-          spawnedProcesses[0].passedProcess.should.equal(expectedScript)
-          spawnedProcesses[0].passedArgs.should.deep.equal(expectedParams)
-          done()
-        })
+      expect(spawnedProcesses[0].passedProcess).toBe(expectedScript)
+      expect(spawnedProcesses[0].passedArgs).toEqual(expectedParams)
     })
 
-    it('should attempt to call makepri.exe with new as parameter', function (done) {
+    it('should attempt to call makepri.exe with new as parameter', async () => {
+      vi.doMock('child_process', () => ({ default: cpMock }), { virtual: true })
+
       const programMock = {
         deploy: true,
         inputDirectory: '/fakepath/to/input',
@@ -59,25 +59,23 @@ describe('Makepri', () => {
         makePri: true
       }
 
-      mockery.registerMock('child_process', cpMock)
+      const makepriModule = await import('../../lib/makepri.js')
+      await makepriModule.default(programMock)
 
-      require('../../lib/makepri')(programMock)
-        .then(() => {
-          const expectedProject = 'pre-appx'
-          const exptectedTarget = path.join('pre-appx', 'priconfig.xml')
-          const expectedOutput = path.join('pre-appx', 'resources.pri')
-          const expectedScript = path.join(programMock.windowsKit, 'makepri.exe')
-          const expectedParams = ['new', '/pr', expectedProject, '/cf', exptectedTarget, '/of', expectedOutput]
+      const expectedProject = 'pre-appx'
+      const exptectedTarget = path.join('pre-appx', 'priconfig.xml')
+      const expectedOutput = path.join('pre-appx', 'resources.pri')
+      const expectedScript = path.join(programMock.windowsKit, 'makepri.exe')
+      const expectedParams = ['new', '/pr', expectedProject, '/cf', exptectedTarget, '/of', expectedOutput]
 
-          spawnedProcesses[1].passedProcess.should.equal(expectedScript)
-          spawnedProcesses[1].passedArgs.should.deep.equal(expectedParams)
-          done()
-        })
+      expect(spawnedProcesses[1].passedProcess).toBe(expectedScript)
+      expect(spawnedProcesses[1].passedArgs).toEqual(expectedParams)
     })
 
-    it('should reject right away if no Windows Kit is available', (done) => {
+    it('should reject right away if no Windows Kit is available', async () => {
       const programMock = {}
-      require('../../lib/makepri')(programMock).should.be.rejected.notify(done)
+      const makepriModule = await import('../../lib/makepri.js')
+      await expect(makepriModule.default(programMock)).rejects.toBeDefined()
     })
   })
 })

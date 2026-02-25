@@ -1,22 +1,27 @@
-const path = require('path')
-const mockery = require('mockery')
+'use strict'
+
+import path from 'path'
+import { describe, it, afterEach, vi, expect } from 'vitest'
 
 describe('Manifest', () => {
-  afterEach(() => mockery.deregisterAll())
+  afterEach(() => {
+    vi.unmock('fs-extra')
+  })
 
   describe('manifest()', () => {
-    it('should attempt to copy a manifest if it has been passed', () => {
+    it('should attempt to copy a manifest if it has been passed', async () => {
       const programMock = {
         outputDirectory: '/fakepath/to/output',
         manifest: '/fakepath/to/manifest'
       }
+
+      let copySource = null
+      let copyDestination = null
+
       const fsMock = {
         copy: function (source, destination, cb) {
-          const expectedSource = path.normalize(programMock.manifest)
-          const expectedDestination = path.join(programMock.outputDirectory, 'pre-appx', 'AppXManifest.xml')
-
-          source.should.equal(expectedSource)
-          destination.should.equal(expectedDestination)
+          copySource = source
+          copyDestination = destination
 
           if (cb) {
             cb()
@@ -26,13 +31,23 @@ describe('Manifest', () => {
         }
       }
 
-      mockery.registerMock('fs-extra', fsMock)
-      return require('../../lib/manifest')(programMock).should.be.fulfilled
+      vi.doMock('fs-extra', () => ({ default: fsMock }), { virtual: true })
+
+      const manifestModule = await import('../../lib/manifest.js')
+      await manifestModule.default(programMock)
+
+      const expectedSource = path.normalize(programMock.manifest)
+      const expectedDestination = path.join(programMock.outputDirectory, 'pre-appx', 'AppXManifest.xml')
+
+      expect(copySource).toBe(expectedSource)
+      expect(copyDestination).toBe(expectedDestination)
     })
 
-    it('should resolve right away if no manifest was passed', () => {
+    it('should resolve right away if no manifest was passed', async () => {
       const programMock = {}
-      return require('../../lib/manifest')(programMock).should.be.fulfilled
+      const manifestModule = await import('../../lib/manifest.js')
+      const result = await manifestModule.default(programMock)
+      expect(result).toBeUndefined()
     })
   })
 })

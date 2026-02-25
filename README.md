@@ -2,7 +2,7 @@
 
 ## [**Disclaimer**]
 
-This repository is forked from [Electron Windows Store](https://github.com/felixrieseberg/electron2appx.git) due to its inactivity, to suit my own use of submitting appx to Windows Store. Please use as is. I am not an official maintainer of this project and may not have time to solve the peculiar issues that other users could be facing.
+This repository is forked from [Electron Windows Store](https://github.com/felixrieseberg/electron-windows-store) due to its inactivity, to suit my own use of submitting appx to Windows Store. Please use as is. I am not an official maintainer of this project and may not have time to solve the peculiar issues that other users could be facing.
 
 That said, your [support](https://www.buymeacoffee.com/bl5s3cxyr) is always welcome. Thanks!
 
