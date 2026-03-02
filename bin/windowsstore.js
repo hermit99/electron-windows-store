@@ -37,7 +37,7 @@ program
   .option('--application-id <id>', 'Application ID, only A-Za-z0-9. are allowed')
   .option('--package-display-name <displayName>', 'Display name of the package')
   .option('--package-description <description>', 'Description of the package')
-  .option('--package-background-color <color>', 'Background color for the app icon (example: #464646)')
+  .option('--package-background-color <color>', 'Background color for the app icon (example: #464646, default: transparent)')
   .option('-e, --package-executable <executablePath>', 'Path to the package executable')
   .option('-a, --assets <assetsPath>', 'Path to the visual assets for the appx')
   .option('-m, --manifest <manifestPath>', 'Path to a manifest, if you want to overwrite the default one')

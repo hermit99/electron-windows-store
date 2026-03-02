@@ -2,7 +2,7 @@
 
 ## [**Disclaimer**]
 
-This repository is forked from [Electron Windows Store](https://github.com/felixrieseberg/electron-windows-store) due to its inactivity, to suit my own use of submitting appx to Windows Store. Please use as is. I am not an official maintainer of this project and may not have time to solve the peculiar issues that other users could be facing.
+This repo was forked from [Electron Windows Store](https://github.com/felixrieseberg/electron-windows-store) after the original became inactive and adjusted to support APPX submissions to the Microsoft Store. Feel free to use it as-is—I’m not an official maintainer and might not be available to fix unique problems you run into.
 
 That said, your [support](https://www.buymeacoffee.com/bl5s3cxyr) is always welcome. Thanks!
 
@@ -14,15 +14,29 @@ electron2appx: A CLI that takes the packaged output of your Electron app, then c
 
 To install this command line tool, get it directly from npm:
 
-    npm install -g electron2appx
+```powershell
+  npm install -g electron2appx
+```
 
 Then, configure your PowerShell:
 
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+```powershell
+  Set-ExecutionPolicy -ExecutionPolicy RemoteSigned
+```
 
 To turn an Electron app into an AppX package, run:
 
-    electron2appx --input-directory C:\myelectronapp  --output-directory C:\output\myelectronapp --package-version 1.0.0.0 --package-name myelectronapp
+```powershell
+  electron2appx --input-directory C:\your_app `
+                --output-directory C:\output\your_app `
+                --package-version 1.0.0.0 `
+                --package-name your_app `
+                --application-id your_app_id `
+                --assets assets_path,
+                --publisher-display-name publisher_name `
+                --identity-name app_identity `
+                --package-description your_app_desc
+```
 
 This tool supports two methods to create AppX packages: Either using manual file copy operations, or using Windows Containers. The first option requires only the [Windows 10 SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk), while the second option also requires the [Desktop App Converter](https://docs.microsoft.com/en-us/windows/uwp/porting/desktop-to-uwp-run-desktop-app-converter).
 
@@ -57,7 +71,9 @@ The output should look roughly like this:
 
 **From an elevated PowerShell (run it "as Administrator")**, run `electron2appx` with the required parameters, passing both the input and output directories, the app's name and version. If you don't pass these parameters, we will simply ask you for them.
 
-    electron2appx --input-directory C:\myelectronapp  --output-directory C:\output\myelectronapp --package-version 1.0.0.0 --package-name myelectronapp
+```powershell
+  electron2appx --input-directory C:\your_app  --output-directory C:\output\your_app --package-version 1.0.0.0 --package-name your_app
+```
 
 These are all options for the CLI:
 
@@ -72,9 +88,9 @@ These are all options for the CLI:
   -n, --package-name <name>                  Name of the app package
       --package-display-name <displayName>   Display name of the package
       --package-description <description>    Description of the package
-      --package-background-color <color>     Background color for the app icon (example: #464646)
+      --package-background-color <color>     Background color for the app icon (example: #464646, default: transparent)
   -e, --package-executable <executablePath>  Path to the package executable
-  -a, --assets <assetsPath>                  Path to the visual assets for the appx
+  -a, --assets <assetsPath>                  Path to the visual assets for the appx, such as icons, logos, etc.
   -m, --manifest <manifestPath>              Path to a manifest, if you want to be overwritten
   -d, --deploy <true|false>                  Should the app be deployed after creation?
   --application-id <id>                      Application ID, only A-Za-z0-9. are allowed
@@ -102,13 +118,35 @@ application-id is only needed when there are spaces or other characters in packa
 
 ### Assets
 
-As per [Windows App icons and logos](https://docs.microsoft.com/en-us/windows/apps/design/style/app-icons-and-logos), you should supply your own icon png files in a folder via `--assets` option to override this tool's default icon files:
+As per [Windows App icons and logos](https://learn.microsoft.com/en-us/windows/apps/design/style/iconography/overview), you should supply your own icon png files in a folder via `--assets` option to override this tool's default icon files:
 
-- Square150x150Logo.png
-- Wide310x150Logo.png
-- Square44x44Logo.png
-- SmallTile.png
-- LargeTile.png (not supplied)
+- App List Target Size (Required)
+  - AppList.targetsize-16.png
+  - AppList.targetsize-20.png
+  - AppList.targetsize-24.png
+  - AppList.targetsize-30.png
+  - AppList.targetsize-32.png
+  - AppList.targetsize-36.png
+  - AppList.targetsize-40.png
+  - AppList.targetsize-48.png
+  - AppList.targetsize-60.png
+  - AppList.targetsize-64.png
+  - AppList.targetsize-72.png
+  - AppList.targetsize-80.png
+  - AppList.targetsize-96.png
+  - AppList.targetsize-256.png
+- Tiles
+  - MedTile.scale-100.png
+  - MedTile.scale-125.png
+  - MedTile.scale-150.png
+  - MedTile.scale-200.png
+  - MedTile.scale-400.png
+- Package logo (Microsoft Store logo)
+  - StoreLogo.scale-100.png
+  - StoreLogo.scale-125.png
+  - StoreLogo.scale-150.png
+  - StoreLogo.scale-200.png
+  - StoreLogo.scale-400.png
 
 ## Programmatic Usage
 
