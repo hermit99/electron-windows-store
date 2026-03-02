@@ -1,6 +1,6 @@
 {
   "name": "electron2appx",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Compile Electron Apps into Windows Store AppX packages",
   "type": "module",
   "packageManager": "pnpm@9.15.4",
