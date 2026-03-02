@@ -3,6 +3,7 @@
   "version": "2.1.2",
   "description": "Compile Electron Apps into Windows Store AppX packages",
   "type": "module",
+  "packageManager": "pnpm@9.15.4",
   "main": "lib/index.js",
   "bin": {
     "electron2appx": "bin/windowsstore.js"
